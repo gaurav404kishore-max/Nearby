@@ -10,42 +10,31 @@
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     :root {
-      --white: #FFFFFF;
-      --bg: #F7F7F7;
-      --bg2: #EFEFEF;
-      --ink: #111111;
-      --ink2: #444444;
-      --muted: #888888;
-      --border: #E8E8E8;
-      --border2: #D0D0D0;
-      --atm: #1A6FA8;
-      --atm-pale: #EBF5FB;
-      --fuel: #B7770D;
-      --fuel-pale: #FEF9E7;
-      --pharma: #1E8449;
-      --pharma-pale: #E8F8F5;
-      --open: #2ECC71;
-      --closed: #E74C3C;
+      --white: #FFFFFF; --bg: #F7F7F7; --bg2: #EFEFEF;
+      --ink: #111111; --ink2: #444444; --muted: #888888;
+      --border: #E8E8E8; --border2: #D0D0D0;
+      --atm: #1A6FA8; --atm-pale: #EBF5FB;
+      --fuel: #B7770D; --fuel-pale: #FEF9E7;
+      --pharma: #1E8449; --pharma-pale: #E8F8F5;
+      --open: #2ECC71; --closed: #E74C3C;
     }
     html, body { height: 100%; overflow: hidden; font-family: 'DM Sans', system-ui, sans-serif; }
     body { background: #E0E0E0; display: flex; align-items: center; justify-content: center; }
-
     .app { width: 100%; max-width: 390px; height: 100%; max-height: 844px; background: var(--white); position: relative; overflow: hidden; display: flex; flex-direction: column; }
     @media (min-width: 480px) { .app { border-radius: 40px; border: 6px solid #1A1A1A; box-shadow: 0 32px 80px rgba(0,0,0,0.25); } }
-
-    .screen { position: absolute; inset: 0; display: flex; flex-direction: column; background: var(--white); transition: opacity 0.2s; }
-    .screen.hidden { opacity: 0; pointer-events: none; }
-
-    /* STATUS BAR */
+    .screen { position: absolute; inset: 0; display: flex; flex-direction: column; background: var(--white); }
+    .screen.hidden { display: none; }
     .sb { padding: 12px 18px 4px; display: flex; justify-content: space-between; font-size: 11px; font-weight: 500; color: var(--muted); flex-shrink: 0; background: var(--white); }
-
-    /* HEADER */
+    .offline-bar { background: #1A1A1A; color: #fff; font-size: 11px; font-weight: 500; padding: 7px 14px; display: flex; align-items: center; gap: 7px; flex-shrink: 0; }
+    .offline-bar svg { width: 12px; height: 12px; flex-shrink: 0; }
+    .offline-bar.hidden { display: none; }
     .hdr { background: var(--white); padding: 4px 14px 10px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
-    .search-bar { display: flex; align-items: center; gap: 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 40px; padding: 10px 14px; }
+    .search-bar { display: flex; align-items: center; gap: 10px; background: var(--bg); border: 1px solid var(--border); border-radius: 40px; padding: 10px 14px; cursor: pointer; }
     .search-bar svg { width: 14px; height: 14px; color: var(--ink); flex-shrink: 0; }
-    .search-loc { font-size: 12px; color: var(--muted); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-
-    /* CATEGORIES */
+    .search-loc { font-size: 12px; color: var(--ink2); flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .use-loc-btn { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 600; color: var(--atm); white-space: nowrap; flex-shrink: 0; cursor: pointer; padding: 4px 0; }
+    .use-loc-btn svg { width: 11px; height: 11px; }
+    .use-loc-btn.hidden { display: none; }
     .cats { display: flex; gap: 20px; padding: 10px 16px 0; border-bottom: 1px solid var(--border); overflow-x: auto; scrollbar-width: none; flex-shrink: 0; }
     .cats::-webkit-scrollbar { display: none; }
     .cat { display: flex; flex-direction: column; align-items: center; gap: 4px; flex-shrink: 0; padding-bottom: 10px; border-bottom: 2.5px solid transparent; cursor: pointer; }
@@ -54,19 +43,13 @@
     .cat.active svg { stroke: var(--ink); }
     .cat-lbl { font-size: 10px; font-weight: 500; color: var(--muted); }
     .cat.active .cat-lbl { color: var(--ink); font-weight: 600; }
-
-    /* PILLS */
     .pills { display: flex; gap: 7px; padding: 10px 16px; overflow-x: auto; scrollbar-width: none; flex-shrink: 0; border-bottom: 1px solid var(--border); }
     .pills::-webkit-scrollbar { display: none; }
     .pill { font-size: 11px; font-weight: 500; padding: 5px 13px; border-radius: 20px; border: 1px solid var(--border2); color: var(--ink2); background: var(--white); white-space: nowrap; flex-shrink: 0; cursor: pointer; transition: all 0.15s; }
     .pill.active { background: var(--ink); color: var(--white); border-color: var(--ink); }
-
-    /* RESULTS */
     .rcount { padding: 8px 16px 2px; font-size: 11px; color: var(--muted); flex-shrink: 0; }
     .rcount strong { color: var(--ink); }
     .results { flex: 1; overflow-y: auto; padding: 8px 16px 80px; -webkit-overflow-scrolling: touch; }
-
-    /* CARDS */
     .card { margin-bottom: 18px; cursor: pointer; }
     .card:active { opacity: 0.85; }
     .card-img { width: 100%; height: 140px; border-radius: 14px; position: relative; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; overflow: hidden; }
@@ -88,35 +71,60 @@
     .cap.orange { background: var(--fuel-pale); color: var(--fuel); }
     .cap.gray { background: var(--bg2); color: var(--ink2); }
     .cap.red { background: #FDEDEC; color: var(--closed); }
-
-    /* STATES */
     .state-box { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 10px; padding: 2rem; text-align: center; }
     .state-box svg { width: 36px; height: 36px; color: var(--border2); }
     .state-title { font-size: 15px; font-weight: 600; color: var(--ink); }
     .state-sub { font-size: 13px; color: var(--muted); line-height: 1.6; }
+    .state-btn { background: var(--ink); color: var(--white); border: none; border-radius: 10px; padding: 11px 24px; font-size: 13px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; margin-top: 4px; }
     .spinner { width: 26px; height: 26px; border: 2px solid var(--border); border-top-color: var(--ink); border-radius: 50%; animation: spin 0.7s linear infinite; }
     @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* MAP VIEW */
+    .perm-screen { position: absolute; inset: 0; background: var(--white); z-index: 100; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 2rem; text-align: center; }
+    .perm-screen.hidden { display: none; }
+    .perm-icon-wrap { width: 72px; height: 72px; background: var(--bg); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; }
+    .perm-icon-wrap svg { width: 30px; height: 30px; color: var(--ink); }
+    .perm-title { font-size: 22px; font-weight: 700; color: var(--ink); margin-bottom: 10px; line-height: 1.25; }
+    .perm-body { font-size: 14px; color: var(--muted); line-height: 1.7; margin-bottom: 1.5rem; }
+    .perm-btn { width: 100%; background: var(--ink); color: var(--white); border: none; border-radius: 12px; padding: 15px; font-size: 15px; font-weight: 600; cursor: pointer; font-family: 'DM Sans', sans-serif; margin-bottom: 12px; }
+    .perm-skip { font-size: 13px; color: var(--atm); cursor: pointer; }
+    .perm-steps { background: var(--bg); border-radius: 10px; padding: 12px 14px; text-align: left; margin-bottom: 14px; width: 100%; }
+    .perm-step { font-size: 12px; color: var(--ink2); padding: 5px 0; border-bottom: 0.5px solid var(--border); display: flex; gap: 8px; line-height: 1.5; }
+    .perm-step:last-child { border-bottom: none; }
+    .step-n { font-weight: 700; color: var(--ink); flex-shrink: 0; }
+    .search-overlay { position: absolute; inset: 0; background: var(--white); z-index: 200; display: flex; flex-direction: column; transform: translateY(-100%); transition: transform 0.3s cubic-bezier(0.32,0.72,0,1); }
+    .search-overlay.open { transform: translateY(0); }
+    .search-input-wrap { display: flex; align-items: center; gap: 10px; padding: 14px 16px; border-bottom: 1px solid var(--border); flex-shrink: 0; }
+    .search-input-wrap svg { width: 15px; height: 15px; color: var(--muted); flex-shrink: 0; }
+    .search-input { flex: 1; font-size: 15px; font-family: 'DM Sans', sans-serif; border: none; outline: none; color: var(--ink); background: transparent; }
+    .search-input::placeholder { color: var(--muted); }
+    .search-cancel { font-size: 13px; font-weight: 600; color: var(--atm); cursor: pointer; white-space: nowrap; }
+    .search-body { flex: 1; overflow-y: auto; }
+    .search-hint { padding: 1.5rem 16px; font-size: 13px; color: var(--muted); text-align: center; line-height: 1.6; }
+    .search-loading { padding: 2rem; display: flex; align-items: center; justify-content: center; gap: 10px; font-size: 13px; color: var(--muted); }
+    .sug-use-loc { display: flex; align-items: center; gap: 12px; padding: 13px 16px; border-bottom: 1px solid var(--border); cursor: pointer; background: #F0F7FF; }
+    .sug-use-loc:active { background: #E0EEF8; }
+    .sug-loc-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--atm); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .sug-loc-icon svg { width: 16px; height: 16px; color: #fff; }
+    .sug-loc-name { font-size: 13px; font-weight: 600; color: var(--atm); }
+    .sug-loc-sub { font-size: 11px; color: #5A9FCA; margin-top: 2px; }
+    .suggestion { display: flex; align-items: center; gap: 12px; padding: 13px 16px; border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.1s; }
+    .suggestion:active { background: var(--bg); }
+    .sug-icon { width: 36px; height: 36px; border-radius: 10px; background: var(--bg); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .sug-icon svg { width: 15px; height: 15px; color: var(--muted); }
+    .sug-name { font-size: 13px; font-weight: 500; color: var(--ink); }
+    .sug-detail { font-size: 11px; color: var(--muted); margin-top: 2px; }
     #map-view { flex: 1; position: relative; }
     #leaflet-map { width: 100%; height: 100%; }
     .list-toggle { position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); background: var(--white); color: var(--ink); font-size: 12px; font-weight: 600; padding: 10px 20px; border-radius: 24px; display: flex; align-items: center; gap: 7px; cursor: pointer; z-index: 500; border: 1px solid var(--border2); box-shadow: 0 4px 14px rgba(0,0,0,0.12); white-space: nowrap; }
     .list-toggle svg { width: 13px; height: 13px; }
-
-    /* MAP TOGGLE FAB */
     .map-toggle { position: absolute; bottom: 85px; left: 50%; transform: translateX(-50%); background: var(--ink); color: var(--white); font-size: 12px; font-weight: 600; padding: 10px 20px; border-radius: 24px; display: flex; align-items: center; gap: 7px; cursor: pointer; z-index: 50; border: none; box-shadow: 0 4px 14px rgba(0,0,0,0.18); white-space: nowrap; }
     .map-toggle svg { width: 13px; height: 13px; }
-
-    /* BOTTOM NAV */
     .bnav { position: absolute; bottom: 0; left: 0; right: 0; background: var(--white); border-top: 1px solid var(--border); display: flex; z-index: 40; padding: 6px 0 12px; }
     .bn { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; cursor: pointer; }
     .bn svg { width: 20px; height: 20px; color: var(--muted); }
     .bn.active svg { color: var(--ink); }
     .bn-lbl { font-size: 10px; color: var(--muted); font-weight: 500; }
     .bn.active .bn-lbl { color: var(--ink); font-weight: 600; }
-
-    /* DETAIL OVERLAY */
-    .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.45); z-index: 200; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
+    .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.45); z-index: 300; display: flex; align-items: flex-end; opacity: 0; pointer-events: none; transition: opacity 0.25s; }
     .overlay.open { opacity: 1; pointer-events: all; }
     .detail-sheet { background: var(--white); border-radius: 20px 20px 0 0; padding: 14px 18px 36px; width: 100%; transform: translateY(100%); transition: transform 0.35s cubic-bezier(0.32,0.72,0,1); max-height: 80vh; overflow-y: auto; }
     .overlay.open .detail-sheet { transform: translateY(0); }
@@ -132,18 +140,16 @@
     .dcaps { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 18px; }
     .dcap-big { font-size: 12px; font-weight: 500; padding: 6px 14px; border-radius: 8px; }
     .disclaimer { background: var(--bg); border-radius: 8px; padding: 10px 12px; margin-bottom: 16px; font-size: 11px; color: var(--muted); line-height: 1.5; display: flex; gap: 8px; }
-    .disclaimer svg { width: 14px; height: 14px; flex-shrink: 0; margin-top: 1px; color: var(--muted); }
-    .nav-btn { width: 100%; background: var(--ink); color: var(--white); border: none; border-radius: 12px; padding: 14px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; }
+    .disclaimer svg { width: 13px; height: 13px; flex-shrink: 0; margin-top: 1px; }
+    .nav-btn { width: 100%; background: var(--ink); color: var(--white); border: none; border-radius: 12px; padding: 14px; font-size: 14px; font-weight: 600; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: 'DM Sans', sans-serif; }
     .nav-btn svg { width: 15px; height: 15px; }
-
-    /* ABOUT SCREEN */
     #about-screen { overflow-y: auto; }
     .about-content { padding: 0 0 80px; }
     .about-hero { padding: 20px 18px; border-bottom: 1px solid var(--border); }
-    .about-title { font-size: 24px; font-weight: 700; color: var(--ink); margin-bottom: 6px; line-height: 1.2; }
     .about-tag { display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; color: var(--atm); background: var(--atm-pale); padding: 3px 10px; border-radius: 20px; margin-bottom: 12px; }
+    .about-title { font-size: 22px; font-weight: 700; color: var(--ink); margin-bottom: 8px; line-height: 1.25; }
     .about-lead { font-size: 14px; color: var(--ink2); line-height: 1.75; }
-    .about-sec { padding: 18px 18px; border-bottom: 1px solid var(--border); }
+    .about-sec { padding: 18px; border-bottom: 1px solid var(--border); }
     .about-sec-lbl { font-size: 10px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); margin-bottom: 10px; display: flex; align-items: center; gap: 6px; }
     .about-sec-lbl svg { width: 13px; height: 13px; }
     .about-sec-text { font-size: 13px; color: var(--ink2); line-height: 1.75; margin-bottom: 10px; }
@@ -157,8 +163,6 @@
     .metric-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--ink); margin-top: 5px; flex-shrink: 0; }
     .metric-text { font-size: 13px; color: var(--ink2); line-height: 1.6; }
     .metric-text strong { color: var(--ink); }
-
-    /* LEAFLET CUSTOM MARKERS */
     .custom-marker { background: none; border: none; }
     .marker-bubble { color: #fff; font-size: 10px; font-weight: 700; padding: 4px 10px; border-radius: 20px; white-space: nowrap; box-shadow: 0 2px 8px rgba(0,0,0,0.2); }
   </style>
@@ -166,537 +170,316 @@
 <body>
 <div class="app">
 
-  <!-- LIST SCREEN -->
-  <div class="screen" id="list-screen">
+  <div class="perm-screen" id="perm-screen">
+    <div class="perm-icon-wrap"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div>
+    <div class="perm-title" id="perm-title">Find what's near you</div>
+    <div class="perm-body" id="perm-body">NearBy works best with your location. We only use it to show nearby results — nothing is stored or shared.</div>
+    <div class="perm-steps hidden" id="perm-steps">
+      <div class="perm-step"><span class="step-n">1.</span> Tap the lock icon in your browser's address bar</div>
+      <div class="perm-step"><span class="step-n">2.</span> Find "Location" and set it to "Allow"</div>
+      <div class="perm-step"><span class="step-n">3.</span> Refresh this page</div>
+    </div>
+    <button class="perm-btn" id="perm-btn" onclick="requestLocation()">Allow location access</button>
+    <div class="perm-skip" onclick="skipLocation()">Or search for an area instead</div>
+  </div>
+
+  <div class="screen hidden" id="list-screen">
+    <div class="offline-bar hidden" id="offline-bar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>
+      No internet connection
+    </div>
     <div class="sb"><span id="list-time">9:41</span><span>● ● ●</span></div>
     <div class="hdr">
-      <div class="search-bar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <div class="search-bar" onclick="openSearch()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <span class="search-loc" id="loc-label">Detecting location…</span>
+        <span class="use-loc-btn hidden" id="use-loc-btn" onclick="useMyLocation(event)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>My location
+        </span>
       </div>
     </div>
-
-    <div class="cats" id="cats">
-      <div class="cat active" data-cat="atm" onclick="selectCat('atm')">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><circle cx="12" cy="16" r="2"/></svg>
-        <div class="cat-lbl">ATM</div>
-      </div>
-      <div class="cat" data-cat="fuel" onclick="selectCat('fuel')">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M3 22V8l6-6h6l3 3v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a1 1 0 0 1-1-1z"/><path d="M9 22V12h6v10"/></svg>
-        <div class="cat-lbl">Petrol Pump</div>
-      </div>
-      <div class="cat" data-cat="pharmacy" onclick="selectCat('pharmacy')">
-        <svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/><line x1="12" y1="9" x2="12" y2="9"/></svg>
-        <div class="cat-lbl">Pharmacy</div>
-      </div>
+    <div class="cats">
+      <div class="cat active" data-cat="atm" onclick="selectCat('atm')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><circle cx="12" cy="16" r="2"/></svg><div class="cat-lbl">ATM</div></div>
+      <div class="cat" data-cat="fuel" onclick="selectCat('fuel')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M3 22V8l6-6h6l3 3v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a1 1 0 0 1-1-1z"/><path d="M9 22V12h6v10"/></svg><div class="cat-lbl">Petrol Pump</div></div>
+      <div class="cat" data-cat="pharmacy" onclick="selectCat('pharmacy')"><svg viewBox="0 0 24 24" fill="none" stroke-width="1.8"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><div class="cat-lbl">Pharmacy</div></div>
     </div>
-
     <div class="pills" id="pills-container"></div>
-
     <div class="rcount" id="rcount"></div>
     <div class="results" id="results-list"></div>
-
-    <button class="map-toggle" onclick="showMap()">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
-      Show map
-    </button>
-
+    <button class="map-toggle" onclick="showMap()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>Show map</button>
     <div class="bnav">
-      <div class="bn active" onclick="showList()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-        <div class="bn-lbl">List</div>
-      </div>
-      <div class="bn" onclick="showMap()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
-        <div class="bn-lbl">Map</div>
-      </div>
-      <div class="bn" onclick="showAbout()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <div class="bn-lbl">Why this?</div>
-      </div>
+      <div class="bn active" onclick="showList()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><div class="bn-lbl">List</div></div>
+      <div class="bn" onclick="showMap()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg><div class="bn-lbl">Map</div></div>
+      <div class="bn" onclick="showAbout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><div class="bn-lbl">Why this?</div></div>
     </div>
   </div>
 
-  <!-- MAP SCREEN -->
   <div class="screen hidden" id="map-screen">
     <div class="sb"><span id="map-time">9:41</span><span>● ● ●</span></div>
     <div class="hdr">
-      <div class="search-bar">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+      <div class="search-bar" onclick="openSearch()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
         <span class="search-loc" id="map-loc-label">Near you</span>
       </div>
     </div>
     <div id="map-view">
       <div id="leaflet-map"></div>
-      <div class="list-toggle" onclick="showList()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-        Show list
-      </div>
+      <div class="list-toggle" onclick="showList()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>Show list</div>
     </div>
     <div class="bnav">
-      <div class="bn" onclick="showList()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-        <div class="bn-lbl">List</div>
-      </div>
-      <div class="bn active">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
-        <div class="bn-lbl">Map</div>
-      </div>
-      <div class="bn" onclick="showAbout()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <div class="bn-lbl">Why this?</div>
-      </div>
+      <div class="bn" onclick="showList()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><div class="bn-lbl">List</div></div>
+      <div class="bn active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg><div class="bn-lbl">Map</div></div>
+      <div class="bn" onclick="showAbout()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><div class="bn-lbl">Why this?</div></div>
     </div>
   </div>
 
-  <!-- ABOUT SCREEN -->
   <div class="screen hidden" id="about-screen">
     <div class="sb"><span id="about-time">9:41</span><span>● ● ●</span></div>
     <div class="about-content">
       <div class="about-hero">
-        <div class="about-tag">Product case study</div>
+        <div class="about-tag">Product case study · B2C · Consumer</div>
         <div class="about-title">Google shows you where ATMs are. Not what they do.</div>
-        <div class="about-lead">NearBy was built to solve a real frustration — walking to an ATM only to find it doesn't support cash deposit. Or driving to a petrol pump that's closed. Location without capability is incomplete information.</div>
+        <div class="about-lead">NearBy was built to solve a real frustration — walking to an ATM only to find it doesn't support cash deposit. Location without capability is incomplete information.</div>
       </div>
-
       <div class="about-sec">
-        <div class="about-sec-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> The problem</div>
-        <div class="about-sec-text">Utility search is broken for high-urgency, time-sensitive needs. <strong>Google Maps tells you where an ATM is. It doesn't tell you whether it accepts deposits, whether it has cash, or whether it's actually functional.</strong> You only find out when you're standing in front of it.</div>
-        <div class="about-sec-text">The same gap exists for petrol pumps (what fuel type? open right now?) and pharmacies (24 hours? specific medicines?). These aren't discovery needs — they're utility needs. The failure cost is a wasted trip.</div>
+        <div class="about-sec-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>The problem</div>
+        <div class="about-sec-text"><strong>Google Maps tells you where an ATM is. It doesn't tell you whether it accepts deposits, whether it has cash, or whether it's functional.</strong> You only find out when you're standing in front of it. The failure cost is a wasted trip.</div>
       </div>
-
       <div class="about-sec">
-        <div class="about-sec-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg> Who it's for</div>
-        <div class="about-sec-text">Urban India, 25–45, smartphone-first. Specifically: someone who needs to deposit cash before a bank deadline. Someone running low on fuel late at night in an unfamiliar area. Someone looking for a 24-hour pharmacy at 11pm. <strong>Common thread: high intent, time-sensitive, zero tolerance for wrong results.</strong></div>
+        <div class="about-sec-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>Who it's for</div>
+        <div class="about-sec-text">Urban India, 25–45. Someone depositing cash before a deadline. Someone low on fuel at night. Someone needing a 24-hour pharmacy. <strong>High intent, time-sensitive, zero tolerance for wrong results.</strong></div>
       </div>
-
       <div class="about-sec">
-        <div class="about-sec-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg> Key product decisions</div>
-        <div class="decision">
-          <div class="decision-q">Why no ratings or reviews?</div>
-          <div class="decision-a">Every feature that adds noise to a utility app is a failure of product thinking. You don't rate an ATM. You use it or you don't. Reviews would increase cognitive load at the exact moment users need speed.</div>
-        </div>
-        <div class="decision">
-          <div class="decision-q">Why "Open now" is always on by default?</div>
-          <div class="decision-a">Nobody searches for a closed ATM intentionally. Defaulting to open results removes one decision from an already urgent moment. You can always turn it off — but most users never need to.</div>
-        </div>
-        <div class="decision">
-          <div class="decision-q">Why three categories and not more?</div>
-          <div class="decision-a">ATM, petrol, pharmacy represent the three highest-urgency utility searches in urban India. Adding more categories dilutes the focus. A product that does three things perfectly beats one that does ten things adequately.</div>
-        </div>
-        <div class="decision">
-          <div class="decision-q">Why list-first, not map-first?</div>
-          <div class="decision-a">When you need a specific capability, distance ranking matters more than spatial layout. The list answers "which one should I go to" faster than a map. The map answers "where exactly is it" — which is step two, not step one.</div>
-        </div>
+        <div class="about-sec-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>Key product decisions</div>
+        <div class="decision"><div class="decision-q">Why no ratings or reviews?</div><div class="decision-a">Every feature that adds noise to a utility app is a failure of product thinking. Reviews increase cognitive load at the exact moment users need speed.</div></div>
+        <div class="decision"><div class="decision-q">Why "Open now" is always on by default?</div><div class="decision-a">Nobody searches for a closed ATM intentionally. Defaulting to open removes one decision from an urgent moment.</div></div>
+        <div class="decision"><div class="decision-q">Why list-first, not map-first?</div><div class="decision-a">Distance ranking answers "which one should I go to" faster than spatial layout. Map answers "where exactly" — that's step two.</div></div>
+        <div class="decision"><div class="decision-q">Why three categories and not more?</div><div class="decision-a">ATM, petrol, pharmacy are the three highest-urgency utility searches in urban India. Three things done perfectly beats ten things done adequately.</div></div>
       </div>
-
       <div class="about-sec">
-        <div class="about-sec-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg> What we measure</div>
-        <div class="metric-item">
-          <div class="metric-dot"></div>
-          <div class="metric-text"><strong>Navigate taps per session</strong> — the north star. If someone taps navigate, the app did its job. That's the job to be done, done.</div>
-        </div>
-        <div class="metric-item">
-          <div class="metric-dot"></div>
-          <div class="metric-text"><strong>Time to first result</strong> — how quickly does a user see usable results from landing. Under 5 seconds is the target.</div>
-        </div>
-        <div class="metric-item">
-          <div class="metric-dot"></div>
-          <div class="metric-text"><strong>Filter usage</strong> — which capability filters are used most tells us what the real unmet needs are, and what data gaps to close first.</div>
-        </div>
-        <div class="metric-item">
-          <div class="metric-dot"></div>
-          <div class="metric-text"><strong>Return rate</strong> — high return = genuine utility, not curiosity. A useful utility app becomes habitual.</div>
-        </div>
+        <div class="about-sec-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>What we measure</div>
+        <div class="metric-item"><div class="metric-dot"></div><div class="metric-text"><strong>Navigate taps per session</strong> — the north star. If someone taps navigate, the app did its job.</div></div>
+        <div class="metric-item"><div class="metric-dot"></div><div class="metric-text"><strong>Time to first result</strong> — under 5 seconds is the target.</div></div>
+        <div class="metric-item"><div class="metric-dot"></div><div class="metric-text"><strong>Filter usage</strong> — which capability filters are used most tells us the real unmet needs.</div></div>
+        <div class="metric-item"><div class="metric-dot"></div><div class="metric-text"><strong>Return rate</strong> — high return = genuine utility, not curiosity.</div></div>
       </div>
-
       <div class="about-sec" style="border-bottom:none">
-        <div class="about-sec-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg> On the data</div>
-        <div class="about-sec-text">Location data is sourced from OpenStreetMap via the Overpass API — free and open source. <strong>Capability data (deposit, cardless, cash level) is illustrative.</strong> In a production build, this would connect to bank-published APIs or a community-verified data layer. The product insight is the design — the data pipeline is an integration problem, not a product problem.</div>
+        <div class="about-sec-lbl"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>On the data</div>
+        <div class="about-sec-text">Location data from OpenStreetMap via Overpass API — free and open source. <strong>Capability data is illustrative.</strong> In production this connects to bank-published APIs. The product insight is the design — the data pipeline is an integration problem, not a product problem.</div>
       </div>
     </div>
     <div class="bnav">
-      <div class="bn" onclick="showList()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-        <div class="bn-lbl">List</div>
-      </div>
-      <div class="bn" onclick="showMap()">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg>
-        <div class="bn-lbl">Map</div>
-      </div>
-      <div class="bn active">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
-        <div class="bn-lbl">Why this?</div>
-      </div>
+      <div class="bn" onclick="showList()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg><div class="bn-lbl">List</div></div>
+      <div class="bn" onclick="showMap()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="1 6 1 22 8 18 16 22 23 18 23 2 16 6 8 2 1 6"/><line x1="8" y1="2" x2="8" y2="18"/><line x1="16" y1="6" x2="16" y2="22"/></svg><div class="bn-lbl">Map</div></div>
+      <div class="bn active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg><div class="bn-lbl">Why this?</div></div>
     </div>
   </div>
 
-  <!-- DETAIL OVERLAY -->
+  <div class="search-overlay" id="search-overlay">
+    <div class="search-input-wrap">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input class="search-input" id="search-input" type="text" placeholder="Search area or address…" autocomplete="off"/>
+      <span class="search-cancel" onclick="closeSearch()">Cancel</span>
+    </div>
+    <div class="search-body" id="search-body"><div class="search-hint">Search for any area, neighbourhood or address</div></div>
+  </div>
+
   <div class="overlay" id="detail-overlay" onclick="closeDetail(event)">
     <div class="detail-sheet" id="detail-sheet"></div>
   </div>
 
 </div>
-
 <script>
-  // ── CONFIG ─────────────────────────────────────────────
   const CAT_CONFIG = {
-    atm: {
-      label: 'ATM', color: '#1A6FA8', pale: '#EBF5FB',
-      overpass: 'amenity=atm',
-      pills: ['Open now', 'Cash deposit', 'SBI', 'HDFC', 'ICICI', 'Cardless', '24 hrs'],
-      caps: {
-        deposit: { label: 'Cash deposit', cls: 'green' },
-        cardless: { label: 'Cardless', cls: 'blue' },
-        withdraw: { label: 'Withdraw only', cls: 'orange' },
-        cashlow: { label: 'Cash low', cls: 'red' },
-        cashok: { label: 'Cash available', cls: 'gray' },
-        hrs24: { label: '24 hrs', cls: 'gray' }
-      },
-      imgClass: 'atm-bg',
-      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#1A6FA8" stroke-width="1" class="big-icon"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><circle cx="12" cy="16" r="2"/></svg>`
-    },
-    fuel: {
-      label: 'Petrol Pump', color: '#B7770D', pale: '#FEF9E7',
-      overpass: 'amenity=fuel',
-      pills: ['Open now', 'Petrol', 'Diesel', 'CNG', 'EV charging', '24 hrs'],
-      caps: {
-        petrol: { label: 'Petrol', cls: 'green' },
-        diesel: { label: 'Diesel', cls: 'blue' },
-        cng: { label: 'CNG', cls: 'orange' },
-        ev: { label: 'EV charging', cls: 'gray' },
-        hrs24: { label: '24 hrs', cls: 'gray' }
-      },
-      imgClass: 'fuel-bg',
-      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#B7770D" stroke-width="1" class="big-icon"><path d="M3 22V8l6-6h6l3 3v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a1 1 0 0 1-1-1z"/><path d="M9 22V12h6v10"/></svg>`
-    },
-    pharmacy: {
-      label: 'Pharmacy', color: '#1E8449', pale: '#E8F8F5',
-      overpass: 'amenity=pharmacy',
-      pills: ['Open now', '24 hrs', 'Generic medicines', 'Delivery available'],
-      caps: {
-        open24: { label: '24 hrs', cls: 'green' },
-        generic: { label: 'Generic medicines', cls: 'blue' },
-        delivery: { label: 'Delivery', cls: 'orange' },
-        prescription: { label: 'Prescription required', cls: 'gray' }
-      },
-      imgClass: 'pharma-bg',
-      icon: `<svg viewBox="0 0 24 24" fill="none" stroke="#1E8449" stroke-width="1" class="big-icon"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>`
-    }
+    atm: { label:'ATM', color:'#1A6FA8', pale:'#EBF5FB', overpass:'amenity=atm', pills:['Open now','Cash deposit','SBI','HDFC','ICICI','Cardless','24 hrs'], caps:{ deposit:{label:'Cash deposit',cls:'green'}, cardless:{label:'Cardless',cls:'blue'}, withdraw:{label:'Withdraw only',cls:'orange'}, cashlow:{label:'Cash low',cls:'red'}, cashok:{label:'Cash available',cls:'gray'}, hrs24:{label:'24 hrs',cls:'gray'} }, imgClass:'atm-bg', icon:`<svg viewBox="0 0 24 24" fill="none" stroke="#1A6FA8" stroke-width="1" class="big-icon"><rect x="2" y="5" width="20" height="14" rx="2"/><line x1="2" y1="10" x2="22" y2="10"/><circle cx="12" cy="16" r="2"/></svg>` },
+    fuel: { label:'Petrol Pump', color:'#B7770D', pale:'#FEF9E7', overpass:'amenity=fuel', pills:['Open now','Petrol','Diesel','CNG','EV charging','24 hrs'], caps:{ petrol:{label:'Petrol',cls:'green'}, diesel:{label:'Diesel',cls:'blue'}, cng:{label:'CNG',cls:'orange'}, ev:{label:'EV charging',cls:'gray'}, hrs24:{label:'24 hrs',cls:'gray'} }, imgClass:'fuel-bg', icon:`<svg viewBox="0 0 24 24" fill="none" stroke="#B7770D" stroke-width="1" class="big-icon"><path d="M3 22V8l6-6h6l3 3v3h1a2 2 0 0 1 2 2v8a2 2 0 0 1-2 2H4a1 1 0 0 1-1-1z"/><path d="M9 22V12h6v10"/></svg>` },
+    pharmacy: { label:'Pharmacy', color:'#1E8449', pale:'#E8F8F5', overpass:'amenity=pharmacy', pills:['Open now','24 hrs','Generic medicines','Delivery available'], caps:{ open24:{label:'24 hrs',cls:'green'}, generic:{label:'Generic medicines',cls:'blue'}, delivery:{label:'Delivery',cls:'orange'}, prescription:{label:'Prescription req.',cls:'gray'} }, imgClass:'pharma-bg', icon:`<svg viewBox="0 0 24 24" fill="none" stroke="#1E8449" stroke-width="1" class="big-icon"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>` }
   };
+  const ATM_BANKS=['SBI','HDFC','ICICI','Axis','PNB','Kotak','Yes Bank','Bank of Baroda','Canara'];
+  const ATM_CAPS=[['deposit','cashok','hrs24'],['withdraw','cashlow'],['deposit','cardless','cashok'],['withdraw','cashok','hrs24'],['deposit','cashok'],['withdraw','cashlow','hrs24'],['cardless','cashok']];
+  const FUEL_CAPS=[['petrol','diesel','hrs24'],['petrol','diesel','cng'],['petrol','diesel','cng','ev'],['petrol','diesel']];
+  const PHARMA_CAPS=[['open24','generic'],['open24','delivery','generic'],['prescription','generic'],['delivery','generic']];
 
-  const ATM_BANKS = ['SBI', 'HDFC', 'ICICI', 'Axis', 'PNB', 'Kotak', 'Yes Bank', 'Bank of Baroda', 'Canara'];
-  const ATM_CAPS_SETS = [
-    ['deposit', 'cashok', 'hrs24'],
-    ['withdraw', 'cashlow'],
-    ['deposit', 'cardless', 'cashok'],
-    ['withdraw', 'cashok', 'hrs24'],
-    ['deposit', 'cashok'],
-    ['withdraw', 'cashlow', 'hrs24'],
-    ['cardless', 'cashok'],
-  ];
-  const FUEL_CAPS_SETS = [
-    ['petrol', 'diesel', 'hrs24'],
-    ['petrol', 'diesel', 'cng'],
-    ['petrol', 'diesel', 'cng', 'ev'],
-    ['petrol', 'diesel'],
-  ];
-  const PHARMA_CAPS_SETS = [
-    ['open24', 'generic'],
-    ['open24', 'delivery', 'generic'],
-    ['prescription', 'generic'],
-    ['delivery', 'generic'],
-  ];
+  let userLat=null,userLng=null,searchLat=null,searchLng=null,usingMyLocation=false;
+  let currentCat='atm',activeFilters=new Set(['Open now']),allResults=[],leafletMap=null,markers=[];
+  let searchDebounce=null;
 
-  // ── STATE ──────────────────────────────────────────────
-  let userLat = null, userLng = null;
-  let currentCat = 'atm';
-  let activeFilters = new Set(['Open now']);
-  let allResults = [];
-  let leafletMap = null;
-  let markers = [];
+  function tick(){const t=new Date(),s=t.getHours().toString().padStart(2,'0')+':'+t.getMinutes().toString().padStart(2,'0');['list-time','map-time','about-time'].forEach(id=>{const el=document.getElementById(id);if(el)el.textContent=s;});}
+  tick();setInterval(tick,10000);
 
-  // ── TIME ───────────────────────────────────────────────
-  function tick() {
-    const t = new Date();
-    const s = t.getHours().toString().padStart(2,'0') + ':' + t.getMinutes().toString().padStart(2,'0');
-    ['list-time','map-time','about-time'].forEach(id => { const el = document.getElementById(id); if(el) el.textContent = s; });
-  }
-  tick(); setInterval(tick, 10000);
+  function checkOnline(){const bar=document.getElementById('offline-bar');if(bar)bar.classList.toggle('hidden',navigator.onLine);}
+  window.addEventListener('online',()=>{checkOnline();if(searchLat)fetchResults();});
+  window.addEventListener('offline',checkOnline);
 
-  // ── SCREENS ────────────────────────────────────────────
-  function showList() {
-    document.getElementById('list-screen').classList.remove('hidden');
-    document.getElementById('map-screen').classList.add('hidden');
-    document.getElementById('about-screen').classList.add('hidden');
-  }
-  function showMap() {
-    document.getElementById('list-screen').classList.add('hidden');
-    document.getElementById('map-screen').classList.remove('hidden');
-    document.getElementById('about-screen').classList.add('hidden');
-    initMap();
-    renderMapMarkers();
-  }
-  function showAbout() {
-    document.getElementById('list-screen').classList.add('hidden');
-    document.getElementById('map-screen').classList.add('hidden');
-    document.getElementById('about-screen').classList.remove('hidden');
-  }
+  function init(){checkOnline();if(!navigator.geolocation){skipLocation();return;}document.getElementById('perm-screen').classList.remove('hidden');}
 
-  // ── LOCATION ───────────────────────────────────────────
-  function init() {
-    renderPills();
-    setResultsState('loading', 'Detecting your location…', '');
-    if (!navigator.geolocation) {
-      useFallbackLocation();
-      return;
-    }
+  function requestLocation(){
+    const btn=document.getElementById('perm-btn');btn.textContent='Detecting…';btn.disabled=true;
     navigator.geolocation.getCurrentPosition(
-      pos => {
-        userLat = pos.coords.latitude;
-        userLng = pos.coords.longitude;
-        reverseGeocode(userLat, userLng);
-        fetchResults();
-      },
-      () => useFallbackLocation(),
-      { timeout: 8000, maximumAge: 60000 }
+      pos=>{userLat=pos.coords.latitude;userLng=pos.coords.longitude;searchLat=userLat;searchLng=userLng;usingMyLocation=true;document.getElementById('perm-screen').classList.add('hidden');showList();reverseGeocode(userLat,userLng,true);fetchResults();renderPills();},
+      err=>{btn.disabled=false;if(err.code===1){document.getElementById('perm-title').textContent='Location is blocked';document.getElementById('perm-body').textContent='Your browser has blocked location access. Enable it in settings:';document.getElementById('perm-steps').classList.remove('hidden');btn.textContent='Refresh page after enabling';btn.onclick=()=>location.reload();}else{skipLocation();}},
+      {timeout:10000,maximumAge:60000}
     );
   }
 
-  function useFallbackLocation() {
-    userLat = 12.9352; userLng = 77.6245; // Koramangala, Bengaluru
-    document.getElementById('loc-label').textContent = 'Koramangala, Bengaluru (demo)';
-    document.getElementById('map-loc-label').textContent = 'Koramangala, Bengaluru (demo)';
-    fetchResults();
+  function skipLocation(){searchLat=12.9352;searchLng=77.6245;usingMyLocation=false;document.getElementById('perm-screen').classList.add('hidden');document.getElementById('loc-label').textContent='Bengaluru';document.getElementById('map-loc-label').textContent='Bengaluru';document.getElementById('use-loc-btn').classList.remove('hidden');showList();fetchResults();renderPills();}
+
+  function useMyLocation(e){
+    e.stopPropagation();if(!navigator.geolocation)return;
+    const btn=document.getElementById('use-loc-btn');btn.textContent='…';
+    navigator.geolocation.getCurrentPosition(
+      pos=>{userLat=pos.coords.latitude;userLng=pos.coords.longitude;searchLat=userLat;searchLng=userLng;usingMyLocation=true;btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>My location`;reverseGeocode(userLat,userLng,true);fetchResults();if(leafletMap){leafletMap.setView([userLat,userLng],15);renderMapMarkers();}},
+      err=>{if(err.code===1){document.getElementById('perm-title').textContent='Location is blocked';document.getElementById('perm-body').textContent='Your browser has blocked location access. Enable it in settings:';document.getElementById('perm-steps').classList.remove('hidden');document.getElementById('perm-btn').textContent='Refresh page after enabling';document.getElementById('perm-btn').onclick=()=>location.reload();document.getElementById('perm-screen').classList.remove('hidden');}btn.innerHTML=`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width:11px;height:11px"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>My location`;},
+      {timeout:8000}
+    );
   }
 
-  async function reverseGeocode(lat, lng) {
-    try {
-      const r = await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`);
-      const d = await r.json();
-      const area = d.address?.suburb || d.address?.neighbourhood || d.address?.city_district || d.address?.city || 'Near you';
-      const city = d.address?.city || d.address?.state_district || '';
-      const label = city ? `${area}, ${city}` : area;
-      document.getElementById('loc-label').textContent = label;
-      document.getElementById('map-loc-label').textContent = label;
-    } catch(e) {}
+  async function reverseGeocode(lat,lng,update){try{const r=await fetch(`https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json`,{headers:{'Accept-Language':'en'}});const d=await r.json();const area=d.address?.suburb||d.address?.neighbourhood||d.address?.city_district||d.address?.city||'Near you';const city=d.address?.city||d.address?.state_district||'';const label=city?`${area}, ${city}`:area;if(update){document.getElementById('loc-label').textContent=label;document.getElementById('map-loc-label').textContent=label;}return label;}catch(e){return null;}}
+
+  function openSearch(){document.getElementById('search-overlay').classList.add('open');setTimeout(()=>document.getElementById('search-input').focus(),300);renderSearchDefault();}
+  function closeSearch(){document.getElementById('search-overlay').classList.remove('open');document.getElementById('search-input').value='';document.getElementById('search-input').blur();}
+
+  function renderSearchDefault(){
+    document.getElementById('search-body').innerHTML=`${!usingMyLocation?`<div class="sug-use-loc" onclick="switchToMyLocation()"><div class="sug-loc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div><div class="sug-loc-name">Use my current location</div><div class="sug-loc-sub">Switch to GPS</div></div></div>`:''}<div class="search-hint">Type any area, neighbourhood or address</div>`;
   }
 
-  // ── OVERPASS FETCH ─────────────────────────────────────
-  async function fetchResults() {
-    if (!userLat) return;
-    const cfg = CAT_CONFIG[currentCat];
-    setResultsState('loading', 'Finding nearby ' + cfg.label + 's…', '');
-    const radius = 1500;
-    const query = `[out:json][timeout:10];node[${cfg.overpass}](around:${radius},${userLat},${userLng});out 20;`;
-    try {
-      const r = await fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(query));
-      const d = await r.json();
-      allResults = d.elements.map((el, i) => enrichResult(el, i));
-      renderResults();
-    } catch(e) {
-      setResultsState('error', 'Could not load results', 'Check your connection and try again.');
-    }
+  function switchToMyLocation(){closeSearch();useMyLocation({stopPropagation:()=>{}});}
+
+  document.getElementById('search-input').addEventListener('input',function(){
+    const q=this.value.trim();clearTimeout(searchDebounce);
+    if(!q){renderSearchDefault();return;}
+    document.getElementById('search-body').innerHTML='<div class="search-loading"><div class="spinner"></div> Searching…</div>';
+    searchDebounce=setTimeout(()=>geocodeSearch(q),400);
+  });
+  document.getElementById('search-input').addEventListener('keydown',e=>{if(e.key==='Escape')closeSearch();});
+
+  async function geocodeSearch(q){
+    if(!navigator.onLine){document.getElementById('search-body').innerHTML='<div class="search-hint">No internet connection.</div>';return;}
+    try{const r=await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(q)}&format=json&limit=5&addressdetails=1`,{headers:{'Accept-Language':'en'}});const results=await r.json();renderSuggestions(results,q);}
+    catch(e){document.getElementById('search-body').innerHTML='<div class="search-hint">Search unavailable. Try again shortly.</div>';}
   }
 
-  function enrichResult(el, idx) {
-    const cfg = CAT_CONFIG[currentCat];
-    const dist = haversine(userLat, userLng, el.lat, el.lon);
-    const tags = el.tags || {};
-    const name = tags.name || tags['name:en'] || tags.operator || (cfg.label + ' ' + (idx + 1));
-    const isOpen24 = tags.opening_hours === '24/7';
-    const hour = new Date().getHours();
-    const isOpen = isOpen24 || (hour >= 8 && hour < 22);
-    let caps = [];
-    let bank = '';
-    if (currentCat === 'atm') {
-      bank = tags.operator || tags.bank || ATM_BANKS[idx % ATM_BANKS.length];
-      caps = ATM_CAPS_SETS[idx % ATM_CAPS_SETS.length];
-    } else if (currentCat === 'fuel') {
-      caps = FUEL_CAPS_SETS[idx % FUEL_CAPS_SETS.length];
-    } else {
-      caps = PHARMA_CAPS_SETS[idx % PHARMA_CAPS_SETS.length];
-    }
-    return { id: el.id, lat: el.lat, lng: el.lon, name, bank, dist, isOpen, isOpen24, caps, tags, addr: tags['addr:street'] || tags['addr:full'] || '' };
+  function renderSuggestions(results,q){
+    const body=document.getElementById('search-body');
+    if(!results||!results.length){body.innerHTML=`<div class="search-hint">No results for "<strong>${esc(q)}</strong>". Try a different search.</div>`;return;}
+    let html=!usingMyLocation?`<div class="sug-use-loc" onclick="switchToMyLocation()"><div class="sug-loc-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div><div class="sug-loc-name">Use my current location</div><div class="sug-loc-sub">Switch to GPS</div></div></div>`:'';
+    results.forEach(r=>{const name=r.display_name.split(',')[0];const detail=r.display_name.split(',').slice(1,3).join(',').trim();html+=`<div class="suggestion" onclick="selectLocation(${r.lat},${r.lon},'${esc(name)}','${esc(detail)}')"><div class="sug-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg></div><div><div class="sug-name">${esc(name)}</div><div class="sug-detail">${esc(detail)}</div></div></div>`;});
+    body.innerHTML=html;
   }
 
-  // ── RENDER RESULTS ─────────────────────────────────────
-  function renderResults() {
-    const cfg = CAT_CONFIG[currentCat];
-    let filtered = allResults.filter(r => {
-      if (activeFilters.has('Open now') && !r.isOpen) return false;
-      if (currentCat === 'atm') {
-        if (activeFilters.has('Cash deposit') && !r.caps.includes('deposit')) return false;
-        if (activeFilters.has('Cardless') && !r.caps.includes('cardless')) return false;
-        if (activeFilters.has('24 hrs') && !r.isOpen24) return false;
-        if (activeFilters.has('SBI') && !r.bank.toLowerCase().includes('sbi')) return false;
-        if (activeFilters.has('HDFC') && !r.bank.toLowerCase().includes('hdfc')) return false;
-        if (activeFilters.has('ICICI') && !r.bank.toLowerCase().includes('icici')) return false;
-      }
-      if (currentCat === 'fuel') {
-        if (activeFilters.has('CNG') && !r.caps.includes('cng')) return false;
-        if (activeFilters.has('EV charging') && !r.caps.includes('ev')) return false;
-        if (activeFilters.has('24 hrs') && !r.isOpen24) return false;
-      }
-      if (currentCat === 'pharmacy') {
-        if (activeFilters.has('24 hrs') && !r.caps.includes('open24')) return false;
-        if (activeFilters.has('Delivery available') && !r.caps.includes('delivery')) return false;
-      }
+  function selectLocation(lat,lng,name,detail){
+    searchLat=parseFloat(lat);searchLng=parseFloat(lng);usingMyLocation=false;
+    const label=detail?`${name}, ${detail}`:name;
+    document.getElementById('loc-label').textContent=label;document.getElementById('map-loc-label').textContent=label;
+    document.getElementById('use-loc-btn').classList.remove('hidden');
+    closeSearch();fetchResults();
+    if(leafletMap){leafletMap.setView([searchLat,searchLng],15);renderMapMarkers();}
+  }
+
+  async function fetchResults(){
+    const lat=searchLat,lng=searchLng;if(!lat)return;
+    if(!navigator.onLine){showState('offline','You\'re offline','NearBy needs internet to find locations near you.',true);return;}
+    const cfg=CAT_CONFIG[currentCat];showState('loading',`Finding ${cfg.label}s nearby…`,'');
+    const query=`[out:json][timeout:12];node[${cfg.overpass}](around:1500,${lat},${lng});out 20;`;
+    try{
+      const r=await fetch('https://overpass-api.de/api/interpreter?data='+encodeURIComponent(query));
+      if(!r.ok)throw new Error('API error');
+      const d=await r.json();
+      allResults=d.elements.map((el,i)=>enrichResult(el,i,lat,lng));
+      renderResults();if(leafletMap)renderMapMarkers();
+    }catch(e){showState('error','Couldn\'t load results','Check your connection or try again.',true);}
+  }
+
+  function enrichResult(el,idx,lat,lng){
+    const cfg=CAT_CONFIG[currentCat],dist=haversine(lat,lng,el.lat,el.lon),tags=el.tags||{};
+    const name=tags.name||tags['name:en']||tags.operator||`${cfg.label} ${idx+1}`;
+    const isOpen24=tags.opening_hours==='24/7',hour=new Date().getHours(),isOpen=isOpen24||(hour>=8&&hour<22);
+    let caps=[],bank='';
+    if(currentCat==='atm'){bank=tags.operator||tags.bank||ATM_BANKS[idx%ATM_BANKS.length];caps=ATM_CAPS[idx%ATM_CAPS.length];}
+    else if(currentCat==='fuel'){caps=FUEL_CAPS[idx%FUEL_CAPS.length];}
+    else{caps=PHARMA_CAPS[idx%PHARMA_CAPS.length];}
+    return{id:el.id,lat:el.lat,lng:el.lon,name,bank,dist,isOpen,isOpen24,caps,tags,addr:tags['addr:street']||''};
+  }
+
+  function renderResults(){
+    const cfg=CAT_CONFIG[currentCat];
+    let filtered=allResults.filter(r=>{
+      if(activeFilters.has('Open now')&&!r.isOpen)return false;
+      if(currentCat==='atm'){if(activeFilters.has('Cash deposit')&&!r.caps.includes('deposit'))return false;if(activeFilters.has('Cardless')&&!r.caps.includes('cardless'))return false;if(activeFilters.has('24 hrs')&&!r.isOpen24)return false;if(activeFilters.has('SBI')&&!r.bank.toLowerCase().includes('sbi'))return false;if(activeFilters.has('HDFC')&&!r.bank.toLowerCase().includes('hdfc'))return false;if(activeFilters.has('ICICI')&&!r.bank.toLowerCase().includes('icici'))return false;}
+      if(currentCat==='fuel'){if(activeFilters.has('CNG')&&!r.caps.includes('cng'))return false;if(activeFilters.has('EV charging')&&!r.caps.includes('ev'))return false;if(activeFilters.has('24 hrs')&&!r.isOpen24)return false;}
+      if(currentCat==='pharmacy'){if(activeFilters.has('24 hrs')&&!r.caps.includes('open24'))return false;if(activeFilters.has('Delivery available')&&!r.caps.includes('delivery'))return false;}
       return true;
     });
-
-    filtered.sort((a,b) => a.dist - b.dist);
-    const rcount = document.getElementById('rcount');
-    const list = document.getElementById('results-list');
-
-    if (filtered.length === 0) {
-      rcount.innerHTML = '';
-      setResultsState('empty',
-        'No results match your filters',
-        'Try removing some filters or expanding the area.');
-      return;
-    }
-
-    const typeLabel = activeFilters.has('Cash deposit') ? 'ATMs with cash deposit' :
-                      activeFilters.has('CNG') ? 'CNG pumps' :
-                      cfg.label + 's';
-    rcount.innerHTML = `<strong>${filtered.length} ${typeLabel}</strong> nearby`;
-    list.innerHTML = '';
-    list.style.display = 'block';
-    document.querySelector('.state-box') && document.querySelector('.state-box').remove();
-
-    filtered.forEach(r => {
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.onclick = () => openDetail(r);
-      const capHtml = r.caps.slice(0,3).map(c => {
-        const cap = cfg.caps[c];
-        return cap ? `<span class="cap ${cap.cls}">${cap.label}</span>` : '';
-      }).join('');
-      const subtitle = currentCat === 'atm' ? r.bank :
-                       currentCat === 'fuel' ? 'Fuel station' : 'Pharmacy';
-      card.innerHTML = `
-        <div class="card-img ${cfg.imgClass}">${cfg.icon}
-          <div class="card-badge"><div class="sdot ${r.isOpen ? 'open' : 'closed'}"></div>${r.isOpen ? (r.isOpen24 ? 'Open · 24 hrs' : 'Open now') : 'Closed'}</div>
-          <div class="card-dist">${formatDist(r.dist)}</div>
-        </div>
-        <div class="card-name">${esc(r.name)}</div>
-        <div class="card-meta">${esc(subtitle)}${r.addr ? ' · ' + esc(r.addr) : ''}</div>
-        <div class="caps">${capHtml}</div>`;
+    filtered.sort((a,b)=>a.dist-b.dist);
+    clearState();
+    const list=document.getElementById('results-list');list.innerHTML='';
+    if(!filtered.length&&allResults.length){document.getElementById('rcount').innerHTML='';showState('empty','No results match your filters','Try removing some filters.',false,true);return;}
+    if(!filtered.length){document.getElementById('rcount').innerHTML='';showState('empty',`No ${cfg.label}s found nearby`,'Try searching a different area.',false,false);return;}
+    const typeLabel=activeFilters.has('Cash deposit')?'ATMs with cash deposit':activeFilters.has('CNG')?'CNG pumps':`${cfg.label}s`;
+    document.getElementById('rcount').innerHTML=`<strong>${filtered.length} ${typeLabel}</strong> nearby`;
+    filtered.forEach(r=>{
+      const card=document.createElement('div');card.className='card';card.onclick=()=>openDetail(r);
+      const capHtml=r.caps.slice(0,3).map(c=>{const cap=cfg.caps[c];return cap?`<span class="cap ${cap.cls}">${cap.label}</span>`:''}).join('');
+      const subtitle=currentCat==='atm'?r.bank:currentCat==='fuel'?'Fuel station':'Pharmacy';
+      card.innerHTML=`<div class="card-img ${cfg.imgClass}">${cfg.icon}<div class="card-badge"><div class="sdot ${r.isOpen?'open':'closed'}"></div>${r.isOpen?(r.isOpen24?'Open · 24 hrs':'Open now'):'Closed'}</div><div class="card-dist">${formatDist(r.dist)}</div></div><div class="card-name">${esc(r.name)}</div><div class="card-meta">${esc(subtitle)}${r.addr?' · '+esc(r.addr):''}</div><div class="caps">${capHtml}</div>`;
       list.appendChild(card);
     });
   }
 
-  function setResultsState(type, title, sub) {
-    const list = document.getElementById('results-list');
-    list.style.display = type === 'loading' || type === 'error' || type === 'empty' ? 'none' : 'block';
-    const existing = document.querySelector('.state-box');
-    if (existing) existing.remove();
-    if (type === 'loading' || type === 'error' || type === 'empty') {
-      const box = document.createElement('div');
-      box.className = 'state-box';
-      box.innerHTML = type === 'loading'
-        ? `<div class="spinner"></div><div class="state-title">${title}</div>`
-        : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">${type === 'error' ? '<circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>' : '<circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>'}</svg>
-          <div class="state-title">${title}</div><div class="state-sub">${sub}</div>`;
-      document.getElementById('list-screen').insertBefore(box, document.querySelector('.bnav'));
-    }
+  function showState(type,title,sub,showRetry=false,showClear=false){
+    clearState();document.getElementById('results-list').innerHTML='';document.getElementById('rcount').innerHTML='';
+    const box=document.createElement('div');box.className='state-box';box.id='state-box';
+    const icons={loading:'<div class="spinner"></div>',offline:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="1" y1="1" x2="23" y2="23"/><path d="M16.72 11.06A10.94 10.94 0 0 1 19 12.55"/><path d="M5 12.55a10.94 10.94 0 0 1 5.17-2.39"/><path d="M8.53 16.11a6 6 0 0 1 6.95 0"/><line x1="12" y1="20" x2="12.01" y2="20"/></svg>`,error:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>`,empty:`<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>`};
+    const btn=showRetry?`<button class="state-btn" onclick="fetchResults()">Try again</button>`:showClear?`<button class="state-btn" onclick="clearFilters()">Clear filters</button>`:'';
+    box.innerHTML=`${icons[type]||icons.empty}<div class="state-title">${title}</div>${sub?`<div class="state-sub">${sub}</div>`:''}${btn}`;
+    document.getElementById('list-screen').insertBefore(box,document.querySelector('#list-screen .bnav'));
+  }
+  function clearState(){const b=document.getElementById('state-box');if(b)b.remove();}
+  function clearFilters(){activeFilters=new Set(['Open now']);renderPills();renderResults();}
+
+  function selectCat(cat){currentCat=cat;activeFilters=new Set(['Open now']);document.querySelectorAll('.cat').forEach(el=>el.classList.toggle('active',el.dataset.cat===cat));renderPills();fetchResults();}
+
+  function renderPills(){
+    const cfg=CAT_CONFIG[currentCat],c=document.getElementById('pills-container');c.innerHTML='';
+    cfg.pills.forEach(p=>{const pill=document.createElement('div');pill.className='pill'+(activeFilters.has(p)?' active':'');pill.textContent=p;pill.onclick=()=>{activeFilters.has(p)?activeFilters.delete(p):activeFilters.add(p);renderPills();renderResults();};c.appendChild(pill);});
   }
 
-  // ── CATEGORIES ─────────────────────────────────────────
-  function selectCat(cat) {
-    currentCat = cat;
-    activeFilters = new Set(['Open now']);
-    document.querySelectorAll('.cat').forEach(el => el.classList.toggle('active', el.dataset.cat === cat));
-    renderPills();
-    fetchResults();
+  function showList(){document.getElementById('list-screen').classList.remove('hidden');document.getElementById('map-screen').classList.add('hidden');document.getElementById('about-screen').classList.add('hidden');}
+  function showMap(){document.getElementById('list-screen').classList.add('hidden');document.getElementById('map-screen').classList.remove('hidden');document.getElementById('about-screen').classList.add('hidden');initMap();renderMapMarkers();}
+  function showAbout(){document.getElementById('list-screen').classList.add('hidden');document.getElementById('map-screen').classList.add('hidden');document.getElementById('about-screen').classList.remove('hidden');}
+
+  function initMap(){
+    if(leafletMap)return;
+    const lat=searchLat||12.9352,lng=searchLng||77.6245;
+    leafletMap=L.map('leaflet-map',{zoomControl:false}).setView([lat,lng],15);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors'}).addTo(leafletMap);
+    if(userLat)L.circleMarker([userLat,userLng],{radius:8,fillColor:'#2196F3',color:'#fff',weight:3,fillOpacity:1}).addTo(leafletMap).bindPopup('You are here');
   }
 
-  // ── PILLS ──────────────────────────────────────────────
-  function renderPills() {
-    const cfg = CAT_CONFIG[currentCat];
-    const container = document.getElementById('pills-container');
-    container.innerHTML = '';
-    cfg.pills.forEach(p => {
-      const pill = document.createElement('div');
-      pill.className = 'pill' + (activeFilters.has(p) ? ' active' : '');
-      pill.textContent = p;
-      pill.onclick = () => {
-        if (activeFilters.has(p)) activeFilters.delete(p);
-        else activeFilters.add(p);
-        renderPills();
-        renderResults();
-      };
-      container.appendChild(pill);
+  function renderMapMarkers(){
+    if(!leafletMap)return;markers.forEach(m=>m.remove());markers=[];
+    const cfg=CAT_CONFIG[currentCat];
+    allResults.slice(0,12).forEach(r=>{
+      const icon=L.divIcon({className:'custom-marker',html:`<div class="marker-bubble" style="background:${cfg.color}">${r.name.length>14?r.name.slice(0,12)+'…':r.name}</div>`,iconAnchor:[30,10]});
+      const m=L.marker([r.lat,r.lng],{icon}).addTo(leafletMap);m.on('click',()=>openDetail(r));markers.push(m);
     });
+    if(searchLat)leafletMap.setView([searchLat,searchLng],15);
   }
 
-  // ── MAP ────────────────────────────────────────────────
-  function initMap() {
-    if (leafletMap) return;
-    leafletMap = L.map('leaflet-map', { zoomControl: false }).setView([userLat || 12.9352, userLng || 77.6245], 15);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '© OpenStreetMap contributors'
-    }).addTo(leafletMap);
-    if (userLat) L.circleMarker([userLat, userLng], { radius: 8, fillColor: '#2196F3', color: '#fff', weight: 3, fillOpacity: 1 }).addTo(leafletMap).bindPopup('You are here');
-  }
-
-  function renderMapMarkers() {
-    if (!leafletMap) return;
-    markers.forEach(m => m.remove());
-    markers = [];
-    const cfg = CAT_CONFIG[currentCat];
-    allResults.slice(0, 12).forEach(r => {
-      const icon = L.divIcon({
-        className: 'custom-marker',
-        html: `<div class="marker-bubble" style="background:${cfg.color}">${r.name.length > 14 ? r.name.slice(0,12)+'…' : r.name}</div>`,
-        iconAnchor: [30, 10]
-      });
-      const m = L.marker([r.lat, r.lng], { icon }).addTo(leafletMap);
-      m.on('click', () => openDetail(r));
-      markers.push(m);
-    });
-    if (userLat && allResults.length) leafletMap.setView([userLat, userLng], 15);
-  }
-
-  // ── DETAIL ─────────────────────────────────────────────
-  function openDetail(r) {
-    const cfg = CAT_CONFIG[currentCat];
-    const capHtml = r.caps.map(c => {
-      const cap = cfg.caps[c];
-      return cap ? `<span class="cap dcap-big ${cap.cls}">${cap.label}</span>` : '';
-    }).join('');
-    const subtitle = currentCat === 'atm' ? r.bank : currentCat === 'fuel' ? 'Fuel station' : 'Pharmacy';
-    document.getElementById('detail-sheet').innerHTML = `
-      <div class="dhandle"></div>
-      <div class="dcat" style="background:${cfg.pale};color:${cfg.color}">${cfg.label}</div>
-      <div class="dname">${esc(r.name)}</div>
-      <div class="daddr">${esc(subtitle)}${r.addr ? ' · ' + esc(r.addr) : ''}</div>
-      <div class="drow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><div class="drow-label">Status</div><div class="drow-value" style="color:${r.isOpen ? '#2ECC71' : '#E74C3C'}">${r.isOpen ? (r.isOpen24 ? 'Open · 24 hours' : 'Open now') : 'Currently closed'}</div></div>
-      <div class="drow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><div class="drow-label">Distance</div><div class="drow-value">${formatDist(r.dist)}</div></div>
-      <div class="dcaps-title">What this ${cfg.label.toLowerCase()} supports</div>
-      <div class="dcaps">${capHtml}</div>
-      <div class="disclaimer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Capability data is illustrative — in production this connects to bank-published APIs. Location data is from OpenStreetMap.</div>
-      <button class="nav-btn" onclick="navigate(${r.lat},${r.lng})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>Navigate</button>`;
+  function openDetail(r){
+    const cfg=CAT_CONFIG[currentCat];
+    const capHtml=r.caps.map(c=>{const cap=cfg.caps[c];return cap?`<span class="cap dcap-big ${cap.cls}">${cap.label}</span>`:''}).join('');
+    const subtitle=currentCat==='atm'?r.bank:currentCat==='fuel'?'Fuel station':'Pharmacy';
+    document.getElementById('detail-sheet').innerHTML=`<div class="dhandle"></div><div class="dcat" style="background:${cfg.pale};color:${cfg.color}">${cfg.label}</div><div class="dname">${esc(r.name)}</div><div class="daddr">${esc(subtitle)}${r.addr?' · '+esc(r.addr):''}</div><div class="drow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><div class="drow-label">Status</div><div class="drow-value" style="color:${r.isOpen?'#2ECC71':'#E74C3C'}">${r.isOpen?(r.isOpen24?'Open · 24 hours':'Open now'):'Currently closed'}</div></div><div class="drow"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg><div class="drow-label">Distance</div><div class="drow-value">${formatDist(r.dist)}</div></div><div class="dcaps-title">What this ${cfg.label.toLowerCase()} supports</div><div class="dcaps">${capHtml}</div><div class="disclaimer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>Capability data is illustrative — in production this connects to bank-published APIs. Location data from OpenStreetMap.</div><button class="nav-btn" onclick="navigate(${r.lat},${r.lng})"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 11 22 2 13 21 11 13 3 11"/></svg>Navigate</button>`;
     document.getElementById('detail-overlay').classList.add('open');
   }
 
-  function closeDetail(e) {
-    if (e.target === document.getElementById('detail-overlay')) document.getElementById('detail-overlay').classList.remove('open');
-  }
+  function closeDetail(e){if(e.target===document.getElementById('detail-overlay'))document.getElementById('detail-overlay').classList.remove('open');}
+  function navigate(lat,lng){window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`,'_blank');}
 
-  function navigate(lat, lng) {
-    window.open(`https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`, '_blank');
-  }
-
-  // ── UTILS ──────────────────────────────────────────────
-  function haversine(lat1, lng1, lat2, lng2) {
-    const R = 6371000, dLat = (lat2-lat1)*Math.PI/180, dLng = (lng2-lng1)*Math.PI/180;
-    const a = Math.sin(dLat/2)**2 + Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;
-    return Math.round(R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)));
-  }
-  function formatDist(m) { return m < 1000 ? m + 'm' : (m/1000).toFixed(1) + 'km'; }
-  function esc(s) { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;'); }
+  function haversine(lat1,lng1,lat2,lng2){const R=6371000,dLat=(lat2-lat1)*Math.PI/180,dLng=(lng2-lng1)*Math.PI/180;const a=Math.sin(dLat/2)**2+Math.cos(lat1*Math.PI/180)*Math.cos(lat2*Math.PI/180)*Math.sin(dLng/2)**2;return Math.round(R*2*Math.atan2(Math.sqrt(a),Math.sqrt(1-a)));}
+  function formatDist(m){return m<1000?m+'m':(m/1000).toFixed(1)+'km';}
+  function esc(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 
   init();
 </script>
